@@ -1,0 +1,23 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+table{
+    /* padding: 20px; */
+    margin: 0 auto;
+    border: 1px solid black;
+}
+thead{
+    border: 1px solid black;
+    background-color: blue;
+}
+thead td{
+    font-size: 20px;
+    color: white;
+}
+td{
+    /* border: ; */
+    padding: 20px;
+    font-weight: bold;
+}
