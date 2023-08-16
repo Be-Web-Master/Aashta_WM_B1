@@ -8,8 +8,10 @@
 // console.log(sentence.at(-4));
 
 // Q3: What will be the character code of the word f, using string method?
-// const sentence = 'The quick brown fox jumps over the lazy dog.';
-// console.log(sentence.charCodeAt("f"));
+const sentence = 'The quick brown fox jumps over the lazy dog.';
+const ltr = sentence.indexOf('f')
+console.log(ltr)
+console.log(sentence.charCodeAt(ltr));
 
 // Q4: Use the concat method to create a full name by combining the 
 // first name and last name. Store the result in the variable ‘fullName’ and print it.
@@ -127,5 +129,5 @@
 // Q22: You have a string paragraph with the following content: “The quick brown fox jumps over the lazy dog.” 
 // Use the search method to find the index of the word “fox” in the paragraph. What will be the result?
 
-const str ='The quick brown fox jumps over the lazy dog.';
-console.log(str.search('fox'));
+// const str ='The quick brown fox jumps over the lazy dog.';
+// console.log(str.search('fox'));
