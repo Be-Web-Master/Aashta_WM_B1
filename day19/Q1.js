@@ -7,7 +7,6 @@
 // }
 
 // //ForEach Loop
-// // let num=[1,2,3,4,5,6,7,8,9,10];
 // function array(num){
 //     const outputArr = []
 //     for(let i=1;i <= num; i+=1){
