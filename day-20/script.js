@@ -31,3 +31,15 @@ for (const key of myMap) {
 console.log(myMap.keys())
 
 //Q8.Create a new Map called secondMap and add the same key-value pairs as myMap to it.
+const secondMap = new Map()
+secondMap.set('name','David')
+secondMap.set('age','23')
+console.log(secondMap)
+
+//Q9.Merge the key-value pairs from secondMap into myMap.
+const map3= new Map([...myMap, ...secondMap])
+console.log(map3)
+
+//Q10.Clear all the key-value pairs from myMap.
+myMap.clear()
+console.log(myMap)
