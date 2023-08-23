@@ -2,6 +2,6 @@
 
 const elem=document.getElementById('listitem')
 elem.addEventListener('click',(event)=>{
-    console.log(event)
+    // console.log(event)
     console.log(event.target.firstChild.data)
 })
