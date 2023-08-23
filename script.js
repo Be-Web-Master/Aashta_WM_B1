@@ -9,7 +9,7 @@ const errorMsg = document.getElementById('error')
 const validateInput = (input) => {
   if (input === 'age' && age.value < 18) {
     errorMsg.innerText = 'Age should be greater than 18'
-  } else if (input === 'phone' && phone.value != 10) {
+  } else if (input === 'phone' && phone.value.length != 10) {
     errorMsg.innerText = 'phone number should be of 10 digit'
   }
   else {
