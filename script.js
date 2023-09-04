@@ -1,153 +1,271 @@
-const table=document.getElementById('table')
-const thead=document.getElementById('thead')
-const tbody=document.getElementById('tbody')
-const columnBtn=document.getElementById('columnBtn')
-columnBtn.onclick = addColumn
-const rowBtn=document.getElementById('rowBtn')
-rowBtn.onclick= addRowData
+const LOCAL_STORAGE_TABLE_KEY = "tableStateData";
 
-const storeTable={
- header:[
-   {
-    element:"th",
-    columnName:"column A",
-    order:1,
-    sort:undefined,
-   },
-   {
-    element:"th",
-    columnName:"column B",
-    order:1,
-    sort:undefined,
-   },{
-    element:"th",
-    columnName:"column C",
-    order:1,
-    sort:undefined,
-   }],
- body:[
-    {
-        element:'tr',
-        rowOrder:1,
-        columnElems:[
-            {
-                elemType:"td",
-                columnName:"columnA",
-                rowOrder:1,
-                value:'row1'
-            },
-            {
-                elemType:"td",
-                columnName:"column B",
-                rowOrder:1,
-                value:'row2'
-            },
-            {
-                elemType:"td",
-                columnName:"column C",
-                rowOrder:1,
-                value:'row3'
-            }]
-    },
-        {
-            element:'tr',
-            rowOrder:2,
-            columnElems:[
-                {
-                    elemType:"td",
-                    columnName:"columnA",
-                    rowOrder:2,
-                    value:'row1'
-                },
-                {
-                    elemType:"td",
-                    columnName:"column B",
-                    rowOrder:2,
-                    value:'row2'
-                },
-                {
-                    elemType:"td",
-                    columnName:"column C",
-                    rowOrder:2,
-                    value:'row3'
-                }]
-        },
-            {
-                element:'tr',
-                rowOrder:3,
-                columnElems:[
-                    {
-                        elemType:"td",
-                        columnName:"columnA",
-                        rowOrder:3,
-                        value:'row1'
-                    },
-                    {
-                        elemType:"td",
-                        columnName:"column B",
-                        rowOrder:3,
-                        value:'row2'
-                    },
-                    {
-                        elemType:"td",
-                        columnName:"column C",
-                        rowOrder:3,
-                        value:'row3'
-                    }]
-}]
+const table = document.getElementById("table");
+const tHead = document.getElementById("thead");
+const tBody = document.getElementById("tbody");
+const addRowButton = document.getElementById("addRowButton");
+const addColumnButton = document.getElementById("addColumnButton");
+const clearLocalData = document.getElementById("clearLocalData");
+const sortForm = document.getElementById("sortForm");
+const selectOption = document.querySelector(".columnsDropDown");
+
+let tableState = {
+  header: [],
+  body: [],
+};
+
+/**
+ * when the page loads for first-time or when it's refreshed,
+ * we check the localStorage if it has table data,
+ */
+document.addEventListener("DOMContentLoaded", syncUIWithLocalStorage);
+
+sortForm.addEventListener("submit", sortTableByColumn);
+
+addColumnButton.addEventListener("click", addNewColumn);
+
+addRowButton.addEventListener("click", addNewRow);
+
+clearLocalData.addEventListener("click", () => {
+  localStorage.clear();
+  clearTableUI();
+  window.location.reload(); // refresh the UI
+});
+
+tBody.addEventListener("keyup", (event) => {
+  const [rowNumber, columnNumber] = event.target.id.split("-"); // 2-3
+  tableState.body[rowNumber].columnDetails[columnNumber].cellValue =
+    event.target.value;
+  localStorage.setItem(LOCAL_STORAGE_TABLE_KEY, JSON.stringify(tableState));
+});
+
+tHead.addEventListener("keyup", (event) => {
+  if (event.target.type === "search") return;
+  // this syntax is called object destructuring of array
+  const { 1: columnNumber } = event.target.id.split("-"); // id = "0-3" => after .split => [0, 3]
+  tableState.header[columnNumber].columnName = event.target.value;
+  localStorage.setItem(LOCAL_STORAGE_TABLE_KEY, JSON.stringify(tableState));
+});
+
+function createSortForm(element) {
+  const optionElement = document.createElement("option");
+  optionElement.setAttribute("id", "ColumnNameList");
+  optionElement.innerText = element.columnName;
+  optionElement.value = element.columnName;
+  selectOption.append(optionElement);
 }
 
-function storeTableData(){
-    storeTable.header.map((elem)=>{
-        const th = document.createElement(elem.element)
-        th.innerText=elem.columnName
-        thead.append(th)
-    })
-    storeTable.body.map((elem)=>{
-            const tr=document.createElement(elem.element)
-            for (const rowElem of elem.columnElems) {  
-                const td =tr.appendChild(document.createElement(rowElem.elemType))
-                td.innerText=rowElem.value
-            }
-           tbody.append(tr)
-        })
-    }  
-storeTableData()
-
-function createRowInput(){
-    const input=document.createElement('input')
-    input.setAttribute('type','text')
-    input.setAttribute('placeholder','Enter row');
-    return input;
+function updateTableDataInLocalStorage(tableStateData) {
+  if (!tableStateData) return;
+  localStorage.setItem(LOCAL_STORAGE_TABLE_KEY, JSON.stringify(tableStateData));
+  createTableUIFromLocalStorage();
 }
 
-function addColumn(){
-    const columnCount=thead.childElementCount
-    const th=document.createElement('th')
-    thead.append(th)
-    // th.append( createColumnInput())
-    th.innerText=`Column ${columnCount}`
+function clearTableUI() {
+  tHead.innerHTML = "";
+  tBody.innerHTML = "";
+  selectOption.innerHTML = "";
+}
 
-    if(tbody.childElementCount){
-        for (const elem of tbody.children) {
-            const td=document.createElement('td')
-            elem.appendChild(td)
-       td.append(createRowInput())
-        }
+function getCellTextAreaElement(cellValue, cellAddress) {
+  const textAreaElement = document.createElement("textarea");
+  textAreaElement.setAttribute("id", cellAddress);
+  textAreaElement.setAttribute("placeholder", `Cell ${cellAddress}`);
+  textAreaElement.setAttribute("type", "text");
+  textAreaElement.value = cellValue;
+  textAreaElement.draggable='true'
+  textAreaElement.ondragstart=function(event){
+    console.log({event,id:event.target.id})
+    event.dataTransfer.setData('text/plain',event.target.id)
+  }
+  return textAreaElement;
+}
+
+function getColumnNameInputElement(columnName, cellAddress) {
+  const columnNameInputElement = document.createElement("input");
+  columnNameInputElement.value = columnName;
+  columnNameInputElement.setAttribute("id", cellAddress);
+  columnNameInputElement.draggable='true'
+  columnNameInputElement.ondragstart=function(e){
+    // console.log({e,id:e.target.id})
+    e.dataTransfer.setData('text/plain',e.target.id)
+  }
+  return columnNameInputElement;
+}
+
+function getColumnSearchInputElement(columnNumber) {
+  const columnSearchInputElement = document.createElement("input");
+  columnSearchInputElement.setAttribute("id", `search-${columnNumber}`);
+  columnSearchInputElement.setAttribute("type", "search");
+  columnSearchInputElement.onkeyup = function columnSearch(e) {
+    const searchInput = e.target.value;
+    const tableDataFromLocalStorage = JSON.parse(
+      localStorage.getItem(LOCAL_STORAGE_TABLE_KEY)
+    );
+    tableState.body = tableDataFromLocalStorage.body.filter((rowObject) => {
+      return rowObject.columnDetails[columnNumber].cellValue
+        .toLowerCase()
+        .includes(searchInput.toLowerCase());
+    });
+    updateTableBodyData(tableState.body);
+  };
+  return columnSearchInputElement;
+}
+
+function createTableUIFromLocalStorage() {
+  clearTableUI();
+
+  tableState = JSON.parse(localStorage.getItem(LOCAL_STORAGE_TABLE_KEY));
+  tableState.header.forEach((element) => {
+    createSortForm(element);
+    const columnElement = document.createElement(element.elementType);
+    columnElement.ondragover=function(event){
+      event.preventDefault()
     }
-   
+    columnElement.ondrop=function(event){
+        const droppedElemIdx=event.dataTransfer.getData('text/plain').split('-')[1]
+        const dropZoneIdx = event.target.id.split('-')[1];
+        console.log({})
+        let swapValue= tableState.header[droppedElemIdx].columnName
+        tableState.header[droppedElemIdx].columnName=tableState.header[dropZoneIdx].columnName
+        tableState.header[dropZoneIdx].columnName=swapValue
+        updateTableDataInLocalStorage(tableState)
+    }
+
+    const columnNameInputElement = getColumnNameInputElement(
+      element.columnName,
+      `0-${element.columnNumber}`
+    );
+    columnElement.append(columnNameInputElement);
+
+    const columnSearchInputElement = getColumnSearchInputElement(
+      element.columnNumber
+    );
+    columnElement.append(columnSearchInputElement);
+
+    tHead.append(columnElement);
+  });
+
+  tableState.body.forEach((element) => {
+    const rowElement = document.createElement(element.elementType);
+    element.columnDetails.forEach((cellDetail) => {
+
+      const tdElement = document.createElement(cellDetail.elementType);
+
+      tdElement.ondragover=function(event){
+        event.preventDefault()
+      }
+      tdElement.ondrop=function(event){
+          const [row, column]=event.dataTransfer.getData('text/plain').split('-')
+          const [rowDropZone, columnDropZone] = event.target.id.split('-');
+          let swapRowValue= tableState.body[row].columnDetails[column].cellValue
+          tableState.body[row].columnDetails[column].cellValue = tableState.body[rowDropZone].columnDetails[columnDropZone].cellValue
+          tableState.body[rowDropZone].columnDetails[columnDropZone].cellValue = swapRowValue
+          updateTableDataInLocalStorage(tableState)
+      }
+
+      const textAreaElement = getCellTextAreaElement(
+        cellDetail.cellValue,
+        `${cellDetail.rowNumber}-${cellDetail.columnNumber}`
+      );
+      tdElement.append(textAreaElement);
+      rowElement.append(tdElement);
+    });
+    tBody.append(rowElement);
+  });
 }
 
-function addRowData(){
-    const tr=document.createElement('tr')
-    tbody.append(tr)
-    for(let j=1;j<=thead.children.length;j++){
-       const td=document.createElement('td')
-       tr.appendChild(td)
-       td.append(createRowInput())
-   }
+function addCellsInEachRowForNewColumn(columnNumber) {
+  tableState.body.forEach((element, idx) => {
+    const tdObject = {
+      elementType: "td",
+      columnNumber: columnNumber,
+      rowNumber: idx,
+      cellValue: `Cell ${idx} - ${columnNumber}`,
+    };
+    element.columnDetails.push(tdObject);
+  });
 }
-// for(let i=1;i<=3;i++){
-//     addColumn(i)
-//     addRowData(i)
-// }
+
+function addNewColumn() {
+  const headerObj = {
+    elementType: "th",
+    columnName: `Column ${tableState.header.length}`,
+    columnNumber: tableState.header.length,
+    sort: "",
+  };
+  tableState.header.push(headerObj);
+  addCellsInEachRowForNewColumn(headerObj.columnNumber);
+  updateTableDataInLocalStorage(tableState);
+}
+
+function addCellsInEachColumnForNewRow(bodyRowObject) {
+  tableState.header.forEach((headerObj) => {
+    bodyRowObject.columnDetails.push({
+      elementType: "td",
+      columnNumber: headerObj.columnNumber,
+      rowNumber: bodyRowObject.rowNumber,
+      cellValue: `Cell ${bodyRowObject.rowNumber} - ${headerObj.columnNumber}`,
+    });
+  });
+  return bodyRowObject;
+}
+
+function addNewRow() {
+  const bodyRow = {
+    elementType: "tr",
+    rowNumber: tableState.body.length,
+    columnDetails: [],
+  };
+  tableState.body.push(addCellsInEachColumnForNewRow(bodyRow));
+  updateTableDataInLocalStorage(tableState);
+}
+
+function syncUIWithLocalStorage() {
+  if (!localStorage.getItem(LOCAL_STORAGE_TABLE_KEY)) {
+    localStorage.setItem(LOCAL_STORAGE_TABLE_KEY, JSON.stringify(tableState));
+  }
+  createTableUIFromLocalStorage();
+}
+
+function sortTableByColumn(event) {
+  event.preventDefault();
+  const selectedColumnName = event.target.columnsDropdown.value;
+  const sortingOrder = event.target.sort.value;
+
+  const columnNumber = tableState.header.find(
+    (headerObj) => headerObj.columnName === selectedColumnName
+  ).columnNumber;
+
+  tableState.body.sort((obj1, obj2) => {
+    if (
+      obj1.columnDetails[columnNumber].cellValue >
+      obj2.columnDetails[columnNumber].cellValue
+    ) {
+      if (sortingOrder === "ascending") return 1;
+      else return -1;
+    } else {
+      if (sortingOrder === "ascending") return -1;
+      else return 1;
+    }
+  });
+  updateTableBodyData(tableState.body);
+}
+
+function updateTableBodyData(tableBodyData) {
+  tableState.body = tableBodyData;
+  tBody.innerHTML = "";
+  tableState.body.forEach((element) => {
+    const rowElement = document.createElement(element.elementType);
+    element.columnDetails.forEach((cellDetail) => {
+      const tdElement = document.createElement(cellDetail.elementType);
+      const textAreaElement = getCellTextAreaElement(
+        cellDetail.cellValue,
+        `${cellDetail.rowNumber}-${cellDetail.columnNumber}`
+      );
+      tdElement.append(textAreaElement);
+      rowElement.append(tdElement);
+    });
+    tBody.append(rowElement);
+  });
+}
