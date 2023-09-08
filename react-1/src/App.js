@@ -3,19 +3,23 @@ import './App.css';
 import {useState} from "react";
 import {InputForm} from "./InputForm";
 import { DataList, dataArray } from './DataList';
-import { UseEffectComp } from './UseEffect';
+import { UseEffectComp } from './useEffect';
+import { UseRefComp } from './useRefDemo';
+import { UseContextComp } from './UseContextDemo';
+import { UseReducerComp } from './useReducer';
 
 
 const ReactComp =()=> {
-
   //  const [count, setCount] = useState(0)
-    
   //  function increment(){
   //   setCount(count + 1)
   //  }
   return (
     <>
-    <UseEffectComp />
+    <UseReducerComp  />
+    {/* <UseContextComp /> */}
+    {/* <UseRefComp /> */}
+    {/* <UseEffectComp /> */}
     </>
   )
   // <div>
