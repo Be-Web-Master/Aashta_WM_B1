@@ -33,6 +33,10 @@ function App() {
     setDiscription('')
   }
 
+  function storeData(){
+    localStorage.setItem('note',JSON.stringify(note))
+  }
+
   return (
     <>
    <div>
@@ -41,7 +45,7 @@ function App() {
       <input type="text" value={title} placeholder="title" onChange={(e)=>{setTitle(e.target.value)}} />
 
       <textarea rows="5" cols="50" value={discription} placeholder="description" onChange={(e)=>{setDiscription(e.target.value)}}></textarea>
-      <button type="submit" onClick={()=>{handleButtonSubmit()}}>Submit</button>
+      <button type="submit" onClick={()=>{handleButtonSubmit()}} >Submit</button>
     </form>
    </div>
     <hr />
