@@ -29,26 +29,63 @@ function App() {
     setTitle(note[idx].title)
     setDiscription(note[idx].discription)
     setModal(true)
-    setTitle('')
-    setDiscription('')
   }
 
-  function storeData(){
-    localStorage.setItem('note',JSON.stringify(note))
-  }
+  // function storeData(){
+  //   localStorage.setItem('note',JSON.stringify(note))
+  // }
 
   return (
     <>
-   <div>
+   <div className='createNote'>
    <h1>Create Note</h1>
-   <form onSubmit={(event)=>event.preventDefault()}>
-      <input type="text" value={title} placeholder="title" onChange={(e)=>{setTitle(e.target.value)}} />
-
-      <textarea rows="5" cols="50" value={discription} placeholder="description" onChange={(e)=>{setDiscription(e.target.value)}}></textarea>
+   <form 
+   onSubmit={(event)=>event.preventDefault()}>
+    <input 
+    type="text" 
+    value={title} 
+    placeholder="title" 
+    onChange={(e)=>{setTitle(e.target.value)}} 
+    required
+    />
+      <textarea 
+      rows="5"
+       cols="50"
+       value={discription} 
+       placeholder="description" 
+       onChange={(e)=>{setDiscription(e.target.value)}}
+      required
+       ></textarea>
       <button type="submit" onClick={()=>{handleButtonSubmit()}} >Submit</button>
     </form>
    </div>
-    <hr />
+
+   <div className='editform'>
+   {modal && 
+    <form
+     onSubmit={(event)=>event.preventDefault()}>
+      <h2>Edit Form</h2>
+    <input 
+    type="text"
+     value={title} 
+     placeholder="title"
+      onChange={(e)=>{setTitle(e.target.value)}}
+      required
+      />
+
+    <textarea 
+    rows="5" 
+    cols="40"
+     value={discription} 
+     placeholder="description" 
+     onChange={(e)=>{setDiscription(e.target.value)}}
+     required >
+     </textarea>
+    <button type="submit" onClick={()=>{handleButtonSubmit()}} disabled={!(title && discription)}>Edit Submit</button>
+  </form>
+  }
+   </div>
+   
     <div className='Note'>
     {note.map((noteElem, i)=>{
       return <div className='card' key={i}>
@@ -58,17 +95,7 @@ function App() {
      )}
     </div>
 
-   <div>
-   {modal && 
-    <form onSubmit={(event)=>event.preventDefault()}>
-      <h5>Edit Form</h5>
-    <input type="text" value={title} placeholder="title" onChange={(e)=>{setTitle(e.target.value)}} />
-
-    <textarea rows="5" cols="40" value={discription} placeholder="description" onChange={(e)=>{setDiscription(e.target.value)}}></textarea>
-    <button type="submit" onClick={()=>{handleButtonSubmit()}}>Edit Submit</button>
-  </form>
-  }
-   </div>
+   
     
     </>
   );
