@@ -1,12 +1,13 @@
-import logo from './logo.svg';
+// import logo from './logo.svg';
 import './App.css';
-import {useState} from "react";
-import {InputForm} from "./InputForm";
-import { DataList, dataArray } from './DataList';
-import { UseEffectComp } from './useEffect';
-import { UseRefComp } from './useRefDemo';
-import { UseContextComp } from './UseContextDemo';
-import { UseReducerComp } from './useReducer';
+import { ReduxDemo } from './redux/reduxDemo';
+// import {useState} from "react";
+// import {InputForm} from "./InputForm";
+// import { DataList, dataArray } from './DataList';
+// import { UseEffectComp } from './useEffect';
+// import { UseRefComp } from './useRefDemo';
+// import { UseContextComp } from './UseContextDemo';
+// import { UseReducerComp } from './useReducer';
 
 
 const ReactComp =()=> {
@@ -16,10 +17,11 @@ const ReactComp =()=> {
   //  }
   return (
     <>
-    <UseReducerComp  />
+    {/* <UseReducerComp  /> */}
     {/* <UseContextComp /> */}
     {/* <UseRefComp /> */}
     {/* <UseEffectComp /> */}
+    <ReduxDemo/>
     </>
   )
   // <div>
